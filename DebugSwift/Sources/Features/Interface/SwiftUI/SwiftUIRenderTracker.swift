@@ -5,6 +5,7 @@
 
 import SwiftUI
 import UIKit
+import Combine
 
 /// Weak reference to track original views for overlay cleanup
 private class WeakViewReference {
@@ -540,20 +541,35 @@ extension Notification.Name {
 
 public struct RenderTrackingModifier: ViewModifier {
     let viewName: String
+    @State private var trackerStateToggle = false
     
     public func body(content: Content) -> some View {
         let tracker = SwiftUIRenderTracker.shared
-        
-        return content
-            .onChange(of: tracker.isEnabled) { _ in
-                // Force a render when tracking state changes
+
+        return Group {
+            if #available(iOS 14.0, *) {
+                content
+                    .onChange(of: tracker.isEnabled) { _ in
+                        trackerStateToggle.toggle()
+                    }
+            } else {
+                content
+                    .onReceive(
+                        NotificationCenter.default.publisher(
+                            for: SwiftUIRenderTracker.renderTrackingStateChangedNotification
+                        )
+                    ) { _ in
+                        trackerStateToggle.toggle()
+                    }
             }
-            .background(
-                // This invisible view will re-render whenever the parent does
-                RenderDetectionView(viewName: viewName)
-                    .frame(width: 0, height: 0)
-                    .hidden()
-            )
+        }
+        .background(
+            // This invisible view will re-render whenever the parent does
+            RenderDetectionView(viewName: viewName)
+                .frame(width: 0, height: 0)
+                .hidden()
+        )
+        .id(trackerStateToggle)
     }
 }
 

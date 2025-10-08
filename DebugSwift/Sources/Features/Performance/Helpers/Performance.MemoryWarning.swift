@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import os.log
 
 @MainActor
 final class PerformanceMemoryWarning {
@@ -15,8 +14,8 @@ final class PerformanceMemoryWarning {
     
     private var isSimulating = false
     private var allocatedMemory: [UnsafeMutableRawPointer] = []
-    private let logger = Logger(subsystem: "DebugSwift", category: "MemoryWarning")
-    
+    private let logger = MemoryWarningLogger()
+
     // MARK: - Public Methods
     
     /// Generates a memory warning with realistic memory pressure
@@ -117,7 +116,7 @@ final class PerformanceMemoryWarning {
     }
     
     private func cleanupAllocatedMemory() async {
-        self.logger.info("🧹 Cleaning up allocated memory...")
+    self.logger.info("🧹 Cleaning up allocated memory...")
         
         await MainActor.run {
             for memory in self.allocatedMemory {

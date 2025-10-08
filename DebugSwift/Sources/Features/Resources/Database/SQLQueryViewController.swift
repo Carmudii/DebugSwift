@@ -249,10 +249,17 @@ extension SQLQueryViewController: UITableViewDataSource {
         
         if indexPath.row == 0 {
             // Header row
-            var content = cell.defaultContentConfiguration()
-            content.text = resultColumns.joined(separator: " | ")
-            content.textProperties.font = .systemFont(ofSize: 14, weight: .semibold)
-            cell.contentConfiguration = content
+            let headerText = resultColumns.joined(separator: " | ")
+            if #available(iOS 14.0, *) {
+                var content = cell.defaultContentConfiguration()
+                content.text = headerText
+                content.textProperties.font = .systemFont(ofSize: 14, weight: .semibold)
+                cell.contentConfiguration = content
+            } else {
+                cell.textLabel?.text = headerText
+                cell.textLabel?.font = .systemFont(ofSize: 14, weight: .semibold)
+                cell.textLabel?.numberOfLines = 0
+            }
             cell.backgroundColor = .systemGray6
         } else {
             // Data row
@@ -271,11 +278,18 @@ extension SQLQueryViewController: UITableViewDataSource {
                 }
                 return "NULL"
             }
-            
-            var content = cell.defaultContentConfiguration()
-            content.text = values.joined(separator: " | ")
-            content.textProperties.font = .systemFont(ofSize: 14)
-            cell.contentConfiguration = content
+            let text = values.joined(separator: " | ")
+            if #available(iOS 14.0, *) {
+                var content = cell.defaultContentConfiguration()
+                content.text = text
+                content.textProperties.font = .systemFont(ofSize: 14)
+                content.textProperties.numberOfLines = 0
+                cell.contentConfiguration = content
+            } else {
+                cell.textLabel?.text = text
+                cell.textLabel?.font = .systemFont(ofSize: 14)
+                cell.textLabel?.numberOfLines = 0
+            }
             cell.backgroundColor = .systemBackground
         }
         
@@ -329,11 +343,18 @@ final class QueryHistoryViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "HistoryCell", for: indexPath)
-        var content = cell.defaultContentConfiguration()
-        content.text = history[indexPath.row]
-        content.textProperties.font = .monospacedSystemFont(ofSize: 14, weight: .regular)
-        content.textProperties.numberOfLines = 2
-        cell.contentConfiguration = content
+        let text = history[indexPath.row]
+        if #available(iOS 14.0, *) {
+            var content = cell.defaultContentConfiguration()
+            content.text = text
+            content.textProperties.font = .monospacedSystemFont(ofSize: 14, weight: .regular)
+            content.textProperties.numberOfLines = 2
+            cell.contentConfiguration = content
+        } else {
+            cell.textLabel?.text = text
+            cell.textLabel?.font = .monospacedSystemFont(ofSize: 14, weight: .regular)
+            cell.textLabel?.numberOfLines = 2
+        }
         return cell
     }
     
